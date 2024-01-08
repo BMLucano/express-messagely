@@ -69,14 +69,6 @@ class User {
    */
 
   static async messagesFrom(username) {
-    // [
-    // {1, to_user: {username: 'b-l' ...} ...}
-    // {2, to_user: {username: 'v-k' ...}}
-    //]
-
-    // TODO: somehow we need to figure out how to get the information
-    // from the users by the username and include
-    // username, first_name, last_name, phone
 
     const results = await db.query(
       `SELECT m.id,
@@ -120,6 +112,37 @@ class User {
    */
 
   static async messagesTo(username) {
+
+    const results = await db.query(
+      `SELECT m.id,
+              m.from_username,
+              m.body,
+              m.sent_at,
+              m.read_at,
+              u.username,
+              u.first_name,
+              u.last_name,
+              u.phone
+          FROM messages as m
+          JOIN users as u
+            ON m.from_username = u.username
+          WHERE to_username = $1`,
+          [username]
+    );
+    const messages = results.rows;
+
+    return messages.map(m => ({
+      id: m.id,
+      from_user: {
+          username: m.from_username,
+          first_name: m.first_name,
+          last_name: m.last_name,
+          phone: m.phone
+      },
+      body: m.body,
+      sent_at: m.sent_at,
+      read_at: m.read_at
+    }));
   }
 }
 
