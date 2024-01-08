@@ -1,5 +1,7 @@
 "use strict";
 
+const db = require("../db")
+const { NotFoundError } = require("../expressError")
 /** User of the site. */
 
 class User {
@@ -25,6 +27,14 @@ class User {
    * [{username, first_name, last_name}, ...] */
 
   static async all() {
+    const results = await db.query(
+      `SELECT username, first_name, last_name
+        FROM users
+        ORDER BY last_name, first_name`
+    );
+    const users = results.rows;
+
+    return results.json({users});
   }
 
   /** Get: get user by username
@@ -37,6 +47,17 @@ class User {
    *          last_login_at } */
 
   static async get(username) {
+    const result = await db.query(
+      `SELECT username, first_name, last_name, phone, join_at, last_login_at
+        FROM users
+        WHERE username = $1`,
+        [username]
+    )
+    const user = result.rows[0];
+
+    if(!user) throw new NotFoundError(`No user mathing username: ${username}`);
+
+    return result.json({ user })
   }
 
   /** Return messages from this user.
