@@ -1,7 +1,7 @@
 "use strict";
 
-const db = require("../db")
-const { NotFoundError } = require("../expressError")
+const db = require("../db");
+const { NotFoundError } = require("../expressError");
 /** User of the site. */
 
 class User {
@@ -34,7 +34,7 @@ class User {
     );
     const users = results.rows;
 
-    return results.json({users});
+    return results.json({ users });
   }
 
   /** Get: get user by username
@@ -51,13 +51,13 @@ class User {
       `SELECT username, first_name, last_name, phone, join_at, last_login_at
         FROM users
         WHERE username = $1`,
-        [username]
-    )
+      [username]
+    );
     const user = result.rows[0];
 
-    if(!user) throw new NotFoundError(`No user mathing username: ${username}`);
+    if (!user) throw new NotFoundError(`No user mathing username: ${username}`);
 
-    return result.json({ user })
+    return result.json({ user });
   }
 
   /** Return messages from this user.
@@ -69,15 +69,14 @@ class User {
    */
 
   static async messagesFrom(username) {
-
-    // First query gets all messages from a given username
-    // returns an array of messages
-    // for each message, we want to show which user that message was sent to
-
     // [
     // {1, to_user: {username: 'b-l' ...} ...}
     // {2, to_user: {username: 'v-k' ...}}
     //]
+
+    // TODO: somehow we need to figure out how to get the information
+    // from the users by the username and include
+    // username, first_name, last_name, phone
 
     const results = await db.query(
       `SELECT m.id,
@@ -93,11 +92,23 @@ class User {
         JOIN users AS u
         ON u.username = m.to_username
         WHERE from_username = $1`,
-        [username]
+      [username]
     );
 
-    const messages = results.rows
+    const messages = results.rows;
 
+    return messages.map(m => ({
+      id: m.id,
+      to_user: {
+          username: m.to_username,
+          first_name: m.first_name,
+          last_name: m.last_name,
+          phone: m.phone
+      },
+      body: m.body,
+      sent_at: m.sent_at,
+      read_at: m.read_at
+    }));
   }
 
   /** Return messages to this user.
