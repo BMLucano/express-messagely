@@ -37,6 +37,9 @@ class User {
   /** Authenticate: is username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
+    //grab password from db
+    //bcrypt compare password
+
   }
 
   /** Update last_login_at for user */
