@@ -62,13 +62,42 @@ class User {
 
   /** Return messages from this user.
    *
-   * [{id, to_user, body, sent_at, read_at}]
+   * [{id, to_user: {username: 'b-l', first_name: 'brandie'}, body, sent_at, read_at}]
    *
    * where to_user is
    *   {username, first_name, last_name, phone}
    */
 
   static async messagesFrom(username) {
+
+    // First query gets all messages from a given username
+    // returns an array of messages
+    // for each message, we want to show which user that message was sent to
+
+    // [
+    // {1, to_user: {username: 'b-l' ...} ...}
+    // {2, to_user: {username: 'v-k' ...}}
+    //]
+
+    const results = await db.query(
+      `SELECT m.id,
+              m.to_username,
+              m.body,
+              m.sent_at,
+              m.read_at,
+              u.username,
+              u.first_name,
+              u.last_name,
+              u.phone
+        FROM messages AS m
+        JOIN users AS u
+        ON u.username = m.to_username
+        WHERE from_username = $1`,
+        [username]
+    );
+
+    const messages = results.rows
+
   }
 
   /** Return messages to this user.

@@ -52,8 +52,12 @@ INSERT INTO users (username, password, first_name, last_name, phone, join_at, la
   VALUES
   ('b-l', 'password', 'brandie', 'lucano', '768950493', '2004-10-19 10:23:54', '2004-10-19 10:23:54'),
   ('v-k', 'password', 'victor', 'kim', '768950493', '2004-10-19 10:23:54', '2004-10-19 10:23:54')
+  ('joelburton', 'password', 'joel', 'burton', '768950493', '2004-10-19 10:23:54', '2004-10-19 10:23:54');
 
 INSERT INTO messages (from_username, to_username, body, sent_at, read_at)
   VALUES
   ('v-k', 'v-k', 'this is a message', '2005-10-19 10:23:54', '2005-10-19 10:25:54'),
-  ('b-l', 'b-l', 'this is a message', '2005-10-19 10:23:54', '2005-10-19 10:25:54');
+  ('b-l', 'b-l', 'this is a message', '2005-10-19 10:23:54', '2005-10-19 10:25:54'),
+  ('b-l', 'joelburton', 'this is a message', '2005-10-19 10:23:54', '2005-10-19 10:25:54'),
+  ('b-l', 'v-k', 'this is a victor message', '2005-10-19 10:23:54', '2005-10-19 10:25:54'),
+  ('v-k', 'joelburton', 'this is a joel message', '2005-10-19 10:23:54', '2005-10-19 10:25:54');
