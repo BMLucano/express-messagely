@@ -3,7 +3,7 @@
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { NotFoundError } = require("../expressError");
-const { SECRET_KEY, BCRYPT_WORK_FACTOR } = require("../config")
+const { SECRET_KEY, BCRYPT_WORK_FACTOR } = require("../config");
 /** User of the site. */
 
 class User {
@@ -27,7 +27,7 @@ class User {
               last_login_at)
             VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
             RETURNING username, password, first_name, last_name, phone`,
-          [username, hashedPassword, first_name, last_name, phone]
+      [username, hashedPassword, first_name, last_name, phone]
     );
     const user = result.rows[0];
 
@@ -37,9 +37,18 @@ class User {
   /** Authenticate: is username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
-    //grab password from db
-    //bcrypt compare password
+    const result = await db.query(
+      `SELECT password
+        FROM users
+        WHERE username = $1`,
+      [username]
+    );
 
+    const user = result.rows[0];
+
+    if (user) {
+      return await bcrypt.compare(password, user.password);
+    }
   }
 
   /** Update last_login_at for user */
@@ -116,10 +125,10 @@ class User {
     return messages.map(m => ({
       id: m.id,
       to_user: {
-          username: m.to_username,
-          first_name: m.first_name,
-          last_name: m.last_name,
-          phone: m.phone
+        username: m.to_username,
+        first_name: m.first_name,
+        last_name: m.last_name,
+        phone: m.phone
       },
       body: m.body,
       sent_at: m.sent_at,
@@ -151,17 +160,17 @@ class User {
           JOIN users as u
             ON m.from_username = u.username
           WHERE to_username = $1`,
-          [username]
+      [username]
     );
     const messages = results.rows;
 
     return messages.map(m => ({
       id: m.id,
       from_user: {
-          username: m.from_username,
-          first_name: m.first_name,
-          last_name: m.last_name,
-          phone: m.phone
+        username: m.from_username,
+        first_name: m.first_name,
+        last_name: m.last_name,
+        phone: m.phone
       },
       body: m.body,
       sent_at: m.sent_at,
