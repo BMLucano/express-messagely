@@ -11,11 +11,8 @@ const { BadRequestError } = require("../expressError");
 /** POST /login: {username, password} => {token} */
 
 router.post("/login", async function(req, res, next){
-  //check for body
-  //get user name and password from body
-  //call User.authenticate with given username/password
-    //if true, sign token and return it
   if (req.body === undefined) throw new BadRequestError();
+
   const { username, password } = req.body;
 
   if(await User.authenticate(username, password)){
@@ -25,12 +22,33 @@ router.post("/login", async function(req, res, next){
   }
 
   throw new UnauthorizedError("Invalid user/password");
-
-})
+});
 
 /** POST /register: registers, logs in, and returns token.
  *
  * {username, password, first_name, last_name, phone} => {token}.
  */
+
+router.post("/register", async function(req, res, next){
+  //check for body
+  //call user.register
+  //sign token with username
+  //update logintimestamp
+  //return token
+  if (req.body === undefined) throw new BadRequestError();
+
+  let user;
+  try{
+    user = User.register(req.body);
+  }catch(err){
+    throw new BadRequestError("Username already exists");
+  }
+
+  const username = user.username;
+  const token = jwt.sign({ username }, SECRET_KEY);
+  User.updateLoginTimestamp(username);
+  return res.json({ token })
+
+})
 
 module.exports = router;
