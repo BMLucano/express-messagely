@@ -1,5 +1,7 @@
 "use strict";
 
+const { ensureCorrectUser } = require("../middleware/auth");
+
 const Router = require("express").Router;
 const router = new Router();
 
@@ -15,6 +17,7 @@ const router = new Router();
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
+router.get("/:id", ensureCorrectUser, )
 
 
 /** POST / - post message.
