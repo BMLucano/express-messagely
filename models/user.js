@@ -54,6 +54,19 @@ class User {
   /** Update last_login_at for user */
 
   static async updateLoginTimestamp(username) {
+    const result = await db.query(
+      `UPDATE users
+        SET last_login_at = current_timestamp
+        WHERE username = $1
+        RETURNING username`,
+      [username]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      throw new NotFoundError();
+    }
   }
 
   /** All: basic info on all users:
@@ -67,7 +80,7 @@ class User {
     );
     const users = results.rows;
 
-    return results.json({ users });
+    return users;
   }
 
   /** Get: get user by username
@@ -90,7 +103,7 @@ class User {
 
     if (!user) throw new NotFoundError(`No user mathing username: ${username}`);
 
-    return result.json({ user });
+    return user;
   }
 
   /** Return messages from this user.
