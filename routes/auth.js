@@ -5,8 +5,8 @@ const router = new Router();
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
-const SECRET_KEY = require("./config");
-const { BadRequestError } = require("../expressError");
+const SECRET_KEY = require("../config");
+const { BadRequestError, UnauthorizedError } = require("../expressError");
 
 /** POST /login: {username, password} => {token} */
 

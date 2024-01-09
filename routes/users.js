@@ -5,7 +5,7 @@ const router = new Router();
 const { NotFoundError } = require("../expressError");
 const { ensureCorrectUser } = require("../middleware/auth");
 const User = require("../models/user");
-const { ensureLoggedIn } = "../middleware/auth";
+const { ensureLoggedIn } = require("../middleware/auth");
 
 
 /** GET / - get list of users.
