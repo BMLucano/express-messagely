@@ -39,13 +39,10 @@ router.get("/:username", ensureCorrectUser, async function (req, res, next) {
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+
 router.get("/:username/to", ensureCorrectUser, async function (req, res, next) {
-  try {
     const results = await User.messagesTo(req.params.username);
     return res.json({ messages: results });
-  } catch (err) {
-    throw new NotFoundError(`User: ${req.params.username} not found`);
-  }
 });
 
 
@@ -58,13 +55,10 @@ router.get("/:username/to", ensureCorrectUser, async function (req, res, next) {
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+
 router.get("/:username/from", ensureCorrectUser, async function (req, res, next){
-  try {
     const results = await User.messagesFrom(req.params.username);
     return res.json({ messages: results });
-  } catch (err) {
-    throw new NotFoundError(`User: ${req.params.username} not found`);
-  }
 })
 
 module.exports = router;

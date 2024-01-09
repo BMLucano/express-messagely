@@ -27,7 +27,7 @@ router.get("/:id", ensureLoggedIn, async function (req, res, next) {
   const msg = await Message.get(req.params.id);
   let username = res.locals.user.username;
 
-  if(msg.to_user.username !== username && msg.from_user.username !== username){
+  if (msg.to_user.username !== username && msg.from_user.username !== username) {
     throw new UnauthorizedError("Cannot read this message");
   }
 
@@ -44,17 +44,12 @@ router.get("/:id", ensureLoggedIn, async function (req, res, next) {
 router.post("/", ensureLoggedIn, async function (req, res, next) {
   //res.locals.user??
   const currentUser = res.locals.user;
-
-  const from_user = currentUser.username;
+  const from_username = currentUser.username;
   const to_username = req.body.to_username;
   const body = req.body.body;
+  const msg = await Message.create({ from_username, to_username, body });
 
-
-  if (await User.get(to_username)) {
-    const msg = await Message.create({ from_user, to_username, body });
-
-    return res.json({ message: msg });
-  };
+  return res.json({ message: msg });
 });
 
 
@@ -66,19 +61,21 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Makes sure that the only the intended recipient can mark as read.
  *
  **/
-router.post("/:id/read", ensureLoggedIn, async function(res, req, next){
+router.post("/:id/read", ensureLoggedIn, async function (req, res, next) {
+
+  console.log("****** req.params.id: ", req.params.id)
 
   const message = await Message.get(req.params.id);
   const username = res.locals.user.username;
 
-  if(message.to_user.username !== username){
+  if (message.to_user.username !== username) {
     throw new UnauthorizedError("Cannot read this message");
   }
   const msg = await Message.markRead(req.params.id);
 
   return res.json({ message: msg });
 
-})
+});
 
 
 module.exports = router;

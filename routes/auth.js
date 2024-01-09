@@ -5,7 +5,7 @@ const router = new Router();
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
-const SECRET_KEY = require("../config");
+const { SECRET_KEY } = require("../config");
 const { BadRequestError, UnauthorizedError } = require("../expressError");
 
 /** POST /login: {username, password} => {token} */
@@ -30,11 +30,14 @@ router.post("/login", async function (req, res, next) {
  */
 
 router.post("/register", async function (req, res, next) {
+
+  console.log("***/register");
+  console.log("*** SECRET KEY: ", SECRET_KEY);
   if (req.body === undefined) throw new BadRequestError();
 
   let user;
   try {
-    user = User.register(req.body);
+    user = await User.register(req.body);
   } catch (err) {
     throw new BadRequestError("Username already exists");
   }

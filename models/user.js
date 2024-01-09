@@ -63,7 +63,7 @@ class User {
     const user = result.rows[0];
 
     if (!user) {
-      throw new NotFoundError(`No user matching username: ${username}`);
+      throw new NotFoundError(`No user matching username: ${user}`);
     }
   }
 
