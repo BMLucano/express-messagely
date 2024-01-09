@@ -8,7 +8,7 @@ const router = new Router();
 const User = require("../models/user");
 const Message = require("../models/message");
 
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, UnauthorizedError } = require("../expressError");
 
 
 /** GET /:id - get detail of message.
@@ -23,9 +23,15 @@ const { BadRequestError } = require("../expressError");
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", ensureCorrectUser, async function (req, res, next) {
-  const response = await Message.get(req.params.id);
-  return res.json({ message: response });
+router.get("/:id", ensureLoggedIn, async function (req, res, next) {
+  const msg = await Message.get(req.params.id);
+  let username = res.locals.user.username;
+
+  if(msg.to_user.username !== username && msg.from_user.username !== username){
+    throw new UnauthorizedError("Cannot read this message");
+  }
+
+  return res.json({ message: msg });
 });
 
 
@@ -36,18 +42,18 @@ router.get("/:id", ensureCorrectUser, async function (req, res, next) {
  *
  **/
 router.post("/", ensureLoggedIn, async function (req, res, next) {
-  //req.user.username??
-  //or just res.locals.user??
+  //res.locals.user??
+  const currentUser = res.locals.user;
 
-  let from_user = res.locals.user.username;
-  let to_username = req.body.to_username;
-  let body = req.body.body;
+  const from_user = currentUser.username;
+  const to_username = req.body.to_username;
+  const body = req.body.body;
 
 
   if (await User.get(to_username)) {
-    const response = await Message.create({ from_user, to_username, body });
+    const msg = await Message.create({ from_user, to_username, body });
 
-    return res.json({ message: response });
+    return res.json({ message: msg });
   };
 });
 
@@ -60,6 +66,19 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Makes sure that the only the intended recipient can mark as read.
  *
  **/
+router.post("/:id/read", ensureLoggedIn, async function(res, req, next){
+
+  const message = await Message.get(req.params.id);
+  const username = res.locals.user.username;
+
+  if(message.to_user.username !== username){
+    throw new UnauthorizedError("Cannot read this message");
+  }
+  const msg = await Message.markRead(req.params.id);
+
+  return res.json({ message: msg });
+
+})
 
 
 module.exports = router;
