@@ -1,9 +1,11 @@
 "use strict";
 
-const { ensureCorrectUser } = require("../middleware/auth");
+const { ensureCorrectUser, ensureLoggedIn } = require("../middleware/auth");
 
 const Router = require("express").Router;
 const router = new Router();
+
+const Message = require("../models/message")
 
 /** GET /:id - get detail of message.
  *
@@ -18,7 +20,7 @@ const router = new Router();
  *
  **/
 router.get("/:id", ensureCorrectUser, async function (req, res, next){
-  const response = await Message.get(id);
+  const response = await Message.get(req.params.id);
   return res.json({ message: response});
 })
 
@@ -29,6 +31,18 @@ router.get("/:id", ensureCorrectUser, async function (req, res, next){
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
+// TODO: catch an error? where would the error happen?
+router.post("/", ensureLoggedIn, async function(req, res, next){
+  //req.user.username??
+  //or just res.locals.user??
+  let from_user = res.locals.user.username;
+  let to_username = req.body.to_username;
+  let body = req.body.body;
+
+  const response = await Message.create({ from_user, to_username, body });
+
+  return res.json({message: response});
+})
 
 
 
