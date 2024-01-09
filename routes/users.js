@@ -25,7 +25,7 @@ router.get("/", ensureLoggedIn, async function (req, res, next) {
  *
  **/
 router.get("/:username", ensureCorrectUser, async function (req, res, next) {
-  const result = await User.get(username);
+  const result = await User.get(req.params.username);
   return res.json({ user: result });
 });
 
@@ -41,10 +41,10 @@ router.get("/:username", ensureCorrectUser, async function (req, res, next) {
  **/
 router.get("/:username/to", ensureCorrectUser, async function (req, res, next) {
   try {
-    const results = await User.messagesTo(username);
+    const results = await User.messagesTo(req.params.username);
     return res.json({ messages: results });
   } catch (err) {
-    throw new NotFoundError(`User: ${username} not found`);
+    throw new NotFoundError(`User: ${req.params.username} not found`);
   }
 });
 
@@ -60,10 +60,10 @@ router.get("/:username/to", ensureCorrectUser, async function (req, res, next) {
  **/
 router.get("/:username/from", ensureCorrectUser, async function (req, res, next){
   try {
-    const results = await User.messagesFrom(username);
+    const results = await User.messagesFrom(req.params.username);
     return res.json({ messages: results });
   } catch (err) {
-    throw new NotFoundError(`User: ${username} not found`);
+    throw new NotFoundError(`User: ${req.params.username} not found`);
   }
 })
 
