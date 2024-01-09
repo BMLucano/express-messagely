@@ -17,7 +17,10 @@ const router = new Router();
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", ensureCorrectUser, )
+router.get("/:id", ensureCorrectUser, async function (req, res, next){
+  const response = await Message.get(id);
+  return res.json({ message: response});
+})
 
 
 /** POST / - post message.
@@ -26,6 +29,7 @@ router.get("/:id", ensureCorrectUser, )
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
+
 
 
 /** POST/:id/read - mark message as read:
