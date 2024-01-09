@@ -44,9 +44,8 @@ class User {
     );
 
     const user = result.rows[0];
-
     if (user) {
-      return await bcrypt.compare(password, user.password);
+      return await bcrypt.compare(password, user.password) === true;
     }
   }
 
@@ -64,16 +63,20 @@ class User {
     const user = result.rows[0];
 
     if (!user) {
-      throw new NotFoundError();
+      throw new NotFoundError(`No user matching username: ${username}`);
     }
   }
+
+  //TODO: think about this... when someone registers, you might want to call updateLoginTimestamp
 
   /** All: basic info on all users:
    * [{username, first_name, last_name}, ...] */
 
   static async all() {
     const results = await db.query(
-      `SELECT username, first_name, last_name
+      `SELECT username,
+              first_name,
+              last_name
         FROM users
         ORDER BY last_name, first_name`
     );
@@ -93,14 +96,19 @@ class User {
 
   static async get(username) {
     const result = await db.query(
-      `SELECT username, first_name, last_name, phone, join_at, last_login_at
+      `SELECT username,
+              first_name,
+              last_name,
+              phone,
+              join_at,
+              last_login_at
         FROM users
         WHERE username = $1`,
       [username]
     );
     const user = result.rows[0];
 
-    if (!user) throw new NotFoundError(`No user mathing username: ${username}`);
+    if (!user) throw new NotFoundError(`No user matching username: ${username}`);
 
     return user;
   }
@@ -114,7 +122,6 @@ class User {
    */
 
   static async messagesFrom(username) {
-
     const results = await db.query(
       `SELECT m.id,
               m.to_username,
@@ -128,7 +135,8 @@ class User {
         FROM messages AS m
         JOIN users AS u
         ON u.username = m.to_username
-        WHERE from_username = $1`,
+        WHERE from_username = $1
+        ORDER BY m.id`,
       [username]
     );
 
@@ -157,7 +165,6 @@ class User {
    */
 
   static async messagesTo(username) {
-
     const results = await db.query(
       `SELECT m.id,
               m.from_username,
@@ -171,7 +178,8 @@ class User {
           FROM messages as m
           JOIN users as u
             ON m.from_username = u.username
-          WHERE to_username = $1`,
+          WHERE to_username = $1
+          ORDER BY m.id`,
       [username]
     );
     const messages = results.rows;
